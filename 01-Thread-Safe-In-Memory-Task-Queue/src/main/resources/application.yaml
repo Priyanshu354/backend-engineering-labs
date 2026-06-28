@@ -1,0 +1,3 @@
+spring:
+  application:
+    name: Thread-Safe-In-Memory-Task-Queue
