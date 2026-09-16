@@ -15,6 +15,7 @@ import java.time.Instant;
 @Getter
 @Setter
 @FieldDefaults(level = AccessLevel.PRIVATE)
+@Table(name = "orders")
 public class Order {
 
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -23,14 +24,14 @@ public class Order {
     @ManyToOne(fetch = FetchType.LAZY) @JoinColumn(name="user_id")
     User user;
 
-    @Enumerated(EnumType.ORDINAL)
+    @Enumerated(EnumType.STRING)
     OrderStatus status;
 
     @Column(nullable = false)
     String shippingAddress;
 
     @Column(nullable = false)
-    Integer totalAmount;
+    Double totalAmount;
 
     @CreationTimestamp
     Instant created_at;

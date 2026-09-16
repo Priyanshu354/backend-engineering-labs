@@ -1,3 +1,18 @@
 spring:
   application:
     name: OrderAndInventoryManagement
+
+  datasource:
+    url: jdbc:postgresql://localhost:5433/order_inventory
+    username: user
+    password: password
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+      show-sql: true
+
+jwt:
+  secret-key: jfp4iur93tjqg84nr4phntag48yrhfnv348erigb48erin23
+
+

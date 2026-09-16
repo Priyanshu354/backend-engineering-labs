@@ -20,14 +20,13 @@ public class OrderItem {
     @ManyToOne(fetch = FetchType.LAZY) @JoinColumn(name = "order_id")
     Order order;
 
-    @ManyToOne(fetch = FetchType.LAZY) @JoinColumn(name = "product_id")
-    Product product;
+    Long productId;
 
     @Column(nullable = false)
     String productName;
 
     @Column(nullable = false)
-    Integer productPrice;
+    Double productPrice;
 
     @Column(nullable = false)
     Integer quantity;

@@ -21,7 +21,7 @@ public class CartItem {
     @ManyToOne(fetch = FetchType.LAZY) @JoinColumn(name = "cart_id")
     Cart cart;
 
-    @OneToOne(fetch = FetchType.LAZY) @JoinColumn(name = "product_id")
+    @ManyToOne(fetch = FetchType.LAZY) @JoinColumn(name = "product_id")
     Product product;
 
     @Column(nullable = false)
