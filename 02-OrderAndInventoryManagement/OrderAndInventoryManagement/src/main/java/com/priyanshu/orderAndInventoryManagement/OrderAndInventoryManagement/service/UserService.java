@@ -52,6 +52,8 @@ public class UserService {
 
         String accessToken = jwtUtil.generateAccessToken(user);
 
+        log.info("user id : {} is loggedIn", user.getId());
+
         return loginOrSignupResponseMapper.LoginORSignupRequestToLoginResponse(user,accessToken);
     }
 

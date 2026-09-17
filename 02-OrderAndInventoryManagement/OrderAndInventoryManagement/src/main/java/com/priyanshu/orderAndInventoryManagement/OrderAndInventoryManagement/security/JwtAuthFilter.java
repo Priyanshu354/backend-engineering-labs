@@ -8,6 +8,7 @@ import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -19,6 +20,7 @@ import java.io.IOException;
 
 @Component
 @RequiredArgsConstructor
+@Slf4j
 public class JwtAuthFilter extends OncePerRequestFilter {
 
     private final JwtUtil jwtUtil;
@@ -45,19 +47,33 @@ public class JwtAuthFilter extends OncePerRequestFilter {
                 return;
             }
 
+            log.info("access Token, {} ", accessToken);
+
             Claims userClaims = jwtUtil.verifyToken(accessToken);
-            Role role = (Role) userClaims.get("role");
+            String roleName = userClaims.get("role", String.class);
+
+            Role role = Role.valueOf(roleName);
+
+            log.info("JWT ROLE = {}", roleName);
+            log.info("SPRING AUTHORITIES = {}", role.getAuthorities());
 
             if (userClaims != null && SecurityContextHolder.getContext().getAuthentication() == null) {
                 Authentication authentication = new UsernamePasswordAuthenticationToken(
-                        userClaims.getSubject(), // userId
+                        userClaims,
                         null,
                         role.getAuthorities()
                 );
 
                 SecurityContextHolder.getContext().setAuthentication(authentication);
             }
+            log.info("AUTH = {}",
+                    SecurityContextHolder.getContext().getAuthentication());
+
+            log.info("BEFORE filterChain");
+
             filterChain.doFilter(request, response);
+
+            log.info("AFTER filterChain");
         }
         catch (Exception ex){
             handlerExceptionResolver.resolveException(request, response, null, ex);

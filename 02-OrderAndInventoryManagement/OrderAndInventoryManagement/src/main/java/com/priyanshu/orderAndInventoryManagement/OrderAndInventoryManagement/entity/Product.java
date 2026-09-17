@@ -27,6 +27,14 @@ public class Product {
     @Column(nullable = false)
     String description;
 
+    @OneToOne(
+            mappedBy = "product",
+            cascade = CascadeType.ALL,
+            orphanRemoval = true,
+            fetch = FetchType.LAZY
+    )
+    Inventory inventory;
+
     @CreationTimestamp
     Instant created_at;
 

@@ -19,7 +19,11 @@ public enum Role {
             INVENTORY_READ,
             INVENTORY_UPDATE,
             INVENTORY_CREATE,
-            INVENTORY_DELETE
+            INVENTORY_DELETE,
+
+            PRODUCT_UPDATE,
+            PRODUCT_CREATE,
+            PRODUCT_DELETE
     ));
 
     Set<Permission> permissions;

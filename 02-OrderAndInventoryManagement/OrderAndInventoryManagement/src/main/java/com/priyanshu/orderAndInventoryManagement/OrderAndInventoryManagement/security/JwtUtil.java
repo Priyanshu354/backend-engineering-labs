@@ -5,6 +5,7 @@ import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 
 import javax.crypto.SecretKey;
@@ -43,4 +44,13 @@ public class JwtUtil {
                 .parseSignedClaims(token)
                 .getPayload();
     }
+
+    public static Long getUserId(){
+        Claims claims = (Claims) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+
+        String userId = claims.getSubject();
+
+        return Long.parseLong(userId);
+    }
+
 }
