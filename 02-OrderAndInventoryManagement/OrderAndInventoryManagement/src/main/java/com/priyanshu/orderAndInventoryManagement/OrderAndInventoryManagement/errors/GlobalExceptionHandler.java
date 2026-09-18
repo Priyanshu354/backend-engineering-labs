@@ -8,6 +8,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.aop.framework.AopConfigException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.orm.ObjectOptimisticLockingFailureException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -15,7 +16,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import com.priyanshu.orderAndInventoryManagement.OrderAndInventoryManagement.errors.exception.BadRequestException;
 import com.priyanshu.orderAndInventoryManagement.OrderAndInventoryManagement.errors.exception.ResourceNotFoundException;
 
-import javax.security.sasl.AuthenticationException;
+import org.springframework.security.core.AuthenticationException;
 import java.util.List;
 
 @RestControllerAdvice
@@ -80,6 +81,15 @@ public class GlobalExceptionHandler {
         ApiError error = new ApiError(HttpStatus.UNAUTHORIZED, "Authentication failed");
         log.error(error.toString(), ex);
         return ResponseEntity.status(error.status()).body(error);
+    }
+
+    @ExceptionHandler(ObjectOptimisticLockingFailureException.class)
+    public ResponseEntity<?> handleOptimisticLock(
+            ObjectOptimisticLockingFailureException ex) {
+
+        return ResponseEntity
+                .status(HttpStatus.CONFLICT)
+                .body("Product was modified by another request. Please retry.");
     }
 
 

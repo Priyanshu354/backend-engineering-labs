@@ -55,13 +55,13 @@ public class JwtAuthFilter extends OncePerRequestFilter {
             Role role = Role.valueOf(roleName);
 
             log.info("JWT ROLE = {}", roleName);
-            log.info("SPRING AUTHORITIES = {}", role.getAuthorities());
+            log.info("SPRING AUTHORITIES = {}", role.getAuthorities(role));
 
             if (userClaims != null && SecurityContextHolder.getContext().getAuthentication() == null) {
                 Authentication authentication = new UsernamePasswordAuthenticationToken(
-                        userClaims,
+                        userClaims, // Principle
                         null,
-                        role.getAuthorities()
+                        role.getAuthorities(role) //List<SimpleGrantedAuthority
                 );
 
                 SecurityContextHolder.getContext().setAuthentication(authentication);

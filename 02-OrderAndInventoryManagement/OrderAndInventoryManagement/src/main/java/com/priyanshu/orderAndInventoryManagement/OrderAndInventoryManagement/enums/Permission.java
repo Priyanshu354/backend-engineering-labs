@@ -5,6 +5,7 @@ public enum Permission {
     ORDER_CREATE,
     ORDER_UPDATE,
     ORDER_READ,
+    ORDER_READ_ALL,
     ORDER_DELETE,
 
     INVENTORY_READ,

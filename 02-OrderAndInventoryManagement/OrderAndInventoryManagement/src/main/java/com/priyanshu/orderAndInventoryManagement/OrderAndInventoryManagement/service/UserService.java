@@ -14,9 +14,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -44,10 +41,6 @@ public class UserService {
                         )
                 );
 
-        if(authentication == null) {
-            throw new BadRequestException("username or password are wrong");
-        }
-
         User user = (User) authentication.getPrincipal();
 
         String accessToken = jwtUtil.generateAccessToken(user);
@@ -70,11 +63,13 @@ public class UserService {
         user.setEmail(signUpRequest.email());
         user.setPassword(hashedPassword);
         user.setName(signUpRequest.name());
-        user.setRole(Role.USER);
-
-        String accessToken = jwtUtil.generateAccessToken(user);
+        user.setRole(Role.ROLE_USER);
 
         userRepo.save(user);
+        String accessToken = jwtUtil.generateAccessToken(user);
+
+        log.info("user email : {} is signedUp", user.getEmail());
+
         return loginOrSignupResponseMapper.LoginORSignupRequestToLoginResponse(user, accessToken);
     }
 }

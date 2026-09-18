@@ -1,50 +1,51 @@
 package com.priyanshu.orderAndInventoryManagement.OrderAndInventoryManagement.controllers;
 
+import com.priyanshu.orderAndInventoryManagement.OrderAndInventoryManagement.dto.inventory.InventoryPageResponse;
+import com.priyanshu.orderAndInventoryManagement.OrderAndInventoryManagement.dto.inventory.InventoryRequest;
 import com.priyanshu.orderAndInventoryManagement.OrderAndInventoryManagement.dto.inventory.InventoryResponse;
-import com.priyanshu.orderAndInventoryManagement.OrderAndInventoryManagement.dto.products.ProductCreateRequest;
-import com.priyanshu.orderAndInventoryManagement.OrderAndInventoryManagement.dto.products.ProductPaginatedResponse;
 import com.priyanshu.orderAndInventoryManagement.OrderAndInventoryManagement.dto.products.ProductResponse;
-import com.priyanshu.orderAndInventoryManagement.OrderAndInventoryManagement.dto.products.ProductUpdateRequest;
 import com.priyanshu.orderAndInventoryManagement.OrderAndInventoryManagement.service.InventoryService;
-import com.priyanshu.orderAndInventoryManagement.OrderAndInventoryManagement.service.ProductService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/inventory")
+@RequestMapping("/api/admin/inventory")
 @Slf4j
 @RequiredArgsConstructor
 public class InventoryController {
 
     private final InventoryService inventoryService;
 
-    @GetMapping("/{id}")
+    @GetMapping("/{productId}")
     public ResponseEntity<InventoryResponse> getInventoryByProductId(@PathVariable Long productId){
-        return ResponseEntity.ok(inventoryService.getInventoryByProductId(id));
+        return ResponseEntity.ok(inventoryService.getInventoryByProductId(productId));
     }
 
     @GetMapping
-    public ResponseEntity<List<InventoryResponse>> getInventories(){
-        return ResponseEntity.ok(inventoryService.getInventoies());
+    public ResponseEntity<List<InventoryPageResponse>> getInventories(){
+        return ResponseEntity.ok(inventoryService.getInventories());
     }
 
-    @PostMapping("/{productId}")
-    public ResponseEntity<InventoryResponse> createInventory(@PathVariable Long productId){
-        log.info("create Product request , {} : ", productCreateRequest);
-        return ResponseEntity.ok(inventoryService.createInventory(productId));
+    @PostMapping
+    public ResponseEntity<InventoryResponse> createInventory(@RequestBody InventoryRequest inventoryRequest){
+        log.info("create inventory request for product , {} : ", inventoryRequest);
+        return ResponseEntity.status(HttpStatus.CREATED).body(inventoryService.createInventory(inventoryRequest));
     }
 
     @PatchMapping("/{productId}")
-    public ResponseEntity<ProductResponse> updateInventory(@PathVariable Long productId){
-        return ResponseEntity.ok(inventoryService.updateProduct(productUpdateRequest, productId));
+    public ResponseEntity<InventoryResponse> updateInventory(@RequestBody InventoryRequest inventoryRequest){
+        log.info("update inventory request for product , {} : ", inventoryRequest);
+        return ResponseEntity.ok(inventoryService.updateProduct(inventoryRequest));
     }
 
     @DeleteMapping("/{productId}")
     public ResponseEntity<Void> deleteInventory(@PathVariable Long productId){
+        log.info("delete inventory for product id : {} ", productId);
         inventoryService.deleteInventory(productId);
         return ResponseEntity.noContent().build();
     }

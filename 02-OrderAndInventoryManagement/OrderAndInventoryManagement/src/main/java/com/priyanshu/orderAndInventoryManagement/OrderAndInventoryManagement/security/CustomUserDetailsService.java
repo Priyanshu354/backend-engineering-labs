@@ -1,4 +1,4 @@
-package com.priyanshu.orderAndInventoryManagement.OrderAndInventoryManagement.service;
+package com.priyanshu.orderAndInventoryManagement.OrderAndInventoryManagement.security;
 
 import com.priyanshu.orderAndInventoryManagement.OrderAndInventoryManagement.repo.UserRepo;
 import lombok.RequiredArgsConstructor;

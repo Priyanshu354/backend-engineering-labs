@@ -28,7 +28,6 @@ import java.util.List;
 public class ProductService {
     private final ProductRepo productRepo;
     private final ProductMapper productMapper;
-    private final InventoryRepo inventoryRepo;
 
     public ProductResponse getProductById(Long id) {
         Product product = productRepo.findById(id).orElseThrow(() -> new ResourceNotFoundException("Product", id));
@@ -41,7 +40,9 @@ public class ProductService {
         List<Product> products =
                 productRepo.findAllPaginated(cursorKey, pageable);
 
-        return productMapper.toProductPaginatedResponse(products, products.getLast().getId());
+        Long nextCursor = products.isEmpty() ? null : products.getLast().getId();
+
+        return productMapper.toProductPaginatedResponse(products, nextCursor);
     }
 
     @PreAuthorize("hasAuthority('PRODUCT_CREATE')")
@@ -54,12 +55,7 @@ public class ProductService {
 
         productRepo.save(newProduct);
 
-        // as per inventory id
-        Inventory productInventory = new Inventory();
-        productInventory.setProduct(newProduct);
-        productInventory.setQuantity(productCreateRequest.quantity());
-
-        inventoryRepo.save(productInventory);
+        log.info("product Id : {} is created", newProduct.getId());
 
         return productMapper.ProductToProductResponse(newProduct);
     }
@@ -67,19 +63,21 @@ public class ProductService {
     @PreAuthorize("hasAuthority('PRODUCT_UPDATE')")
     public ProductResponse updateProduct(ProductUpdateRequest productUpdateRequest, Long id) {
         Product product = productRepo.findById(id).orElseThrow(() -> new ResourceNotFoundException("Product", id));
-
-        // as per inventory id
         productMapper.updateProduct(productUpdateRequest, product);
         productRepo.save(product);
+
+        log.info("product Id : {} is updated", id);
+
         return productMapper.ProductToProductResponse(product);
     }
 
     @PreAuthorize("hasAuthority('PRODUCT_DELETE')")
     public void deleteProduct(Long id) {
         Product product = productRepo.findById(id).orElseThrow(() -> new ResourceNotFoundException("Product", id));
-
-        // as per inventory id
         productRepo.delete(product);
+
+        log.info("product name : {} or Id : {} is deleted", product.getName(), id);
+
         return ;
     }
 }
