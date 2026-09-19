@@ -1,10 +1,14 @@
 package com.priyanshu.orderAndInventoryManagement.OrderAndInventoryManagement.dto.order;
 
+import com.priyanshu.orderAndInventoryManagement.OrderAndInventoryManagement.enums.OrderStatus;
+
+import java.math.BigDecimal;
 import java.time.Instant;
 
 public record OrderResponse(
-        Long orderId,
+        Long id,
         Instant placedDate,
-        Double totalAmount
+        BigDecimal totalAmount,
+        OrderStatus orderStatus
 ) {
 }

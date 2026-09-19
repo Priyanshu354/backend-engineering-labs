@@ -6,6 +6,7 @@ import lombok.experimental.FieldDefaults;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
+import java.math.BigDecimal;
 import java.time.Instant;
 
 @Entity
@@ -22,7 +23,7 @@ public class Product {
     String name;
 
     @Column(nullable = false)
-    Double price;
+    BigDecimal price;
 
     @Column(nullable = false)
     String description;

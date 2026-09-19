@@ -3,6 +3,7 @@ package com.priyanshu.orderAndInventoryManagement.OrderAndInventoryManagement.co
 import com.priyanshu.orderAndInventoryManagement.OrderAndInventoryManagement.dto.cart.*;
 import com.priyanshu.orderAndInventoryManagement.OrderAndInventoryManagement.security.JwtUtil;
 import com.priyanshu.orderAndInventoryManagement.OrderAndInventoryManagement.service.CartService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -20,7 +21,7 @@ public class CartController {
     @GetMapping
     public ResponseEntity<List<CartResponse>> getCart(@RequestParam(required = false) Long guestId){
         Long userId = JwtUtil.getUserId();
-        Long id = userId == null ? userId : guestId;
+        Long id = userId != null ? userId : guestId;
 
         return ResponseEntity.ok(cartService.getCart(id));
     }
@@ -29,7 +30,7 @@ public class CartController {
     public ResponseEntity<CartMessage> addToCart(@RequestParam(required = false) Long guestId,
                                                  @RequestBody CartRequest cartRequest){
         Long userId = JwtUtil.getUserId();
-        Long id = userId == null ? userId : guestId;
+        Long id = userId != null ? userId : guestId;
 
         return ResponseEntity.status(HttpStatus.CREATED).body(cartService.addToCart(cartRequest, id));
     }
@@ -38,16 +39,16 @@ public class CartController {
     public ResponseEntity<CartMessage> manageCart(@RequestParam(required = false) Long guestId,
                                                      @RequestBody CartMangeRequest cartMangeRequest){
         Long userId = JwtUtil.getUserId();
-        Long id = userId == null ? userId : guestId;
+        Long id = userId != null ? userId : guestId;
 
         return ResponseEntity.ok(cartService.manageCart(cartMangeRequest,id));
     }
 
     @DeleteMapping
     public ResponseEntity<CartMessage> removeToCart(@RequestParam(required = false) Long guestId,
-                                                  @RequestBody CartDeleteRequest cartDeleteRequest){
+                                                    @Valid @RequestBody CartDeleteRequest cartDeleteRequest){
         Long userId = JwtUtil.getUserId();
-        Long id = userId == null ? userId : guestId;
+        Long id = userId != null ? userId : guestId;
 
         return ResponseEntity.ok(cartService.removeToCart(cartDeleteRequest,id));
     }

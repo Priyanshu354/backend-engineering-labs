@@ -3,7 +3,7 @@ package com.priyanshu.orderAndInventoryManagement.OrderAndInventoryManagement.dt
 import com.priyanshu.orderAndInventoryManagement.OrderAndInventoryManagement.enums.OrderStatus;
 
 public record OrderUpdateRequest(
-        Long orderItemId,
+        Long orderId,
         OrderStatus orderStatus
 ) {
 }

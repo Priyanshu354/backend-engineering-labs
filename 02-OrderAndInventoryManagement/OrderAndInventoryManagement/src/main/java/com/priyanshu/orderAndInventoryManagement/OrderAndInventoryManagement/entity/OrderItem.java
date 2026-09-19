@@ -5,6 +5,7 @@ import lombok.*;
 import lombok.experimental.FieldDefaults;
 import org.hibernate.annotations.CreationTimestamp;
 
+import java.math.BigDecimal;
 import java.time.Instant;
 
 @Entity
@@ -26,7 +27,7 @@ public class OrderItem {
     String productName;
 
     @Column(nullable = false)
-    Double productPrice;
+    BigDecimal productPrice;
 
     @Column(nullable = false)
     Integer quantity;

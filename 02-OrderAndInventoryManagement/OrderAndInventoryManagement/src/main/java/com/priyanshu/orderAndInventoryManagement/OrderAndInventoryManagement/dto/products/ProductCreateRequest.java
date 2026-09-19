@@ -3,6 +3,8 @@ package com.priyanshu.orderAndInventoryManagement.OrderAndInventoryManagement.dt
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 
+import java.math.BigDecimal;
+
 public record ProductCreateRequest(
         @NotBlank
         String name,
@@ -11,7 +13,7 @@ public record ProductCreateRequest(
         String description,
 
         @NotBlank @Min(1)
-        double price,
+        BigDecimal price,
 
         @NotBlank @Min(1)
         Integer quantity

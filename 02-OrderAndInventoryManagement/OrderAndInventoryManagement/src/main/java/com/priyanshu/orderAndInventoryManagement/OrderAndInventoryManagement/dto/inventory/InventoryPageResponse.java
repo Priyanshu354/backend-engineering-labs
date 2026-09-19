@@ -4,7 +4,7 @@ public record InventoryPageResponse(
         Long productId,
         String name,
         String description,
-        Double price,
+        BigDecimal price,
         Integer quantity
 
 ) {

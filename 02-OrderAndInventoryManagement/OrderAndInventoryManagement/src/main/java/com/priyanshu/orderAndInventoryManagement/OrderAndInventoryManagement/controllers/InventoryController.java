@@ -37,7 +37,7 @@ public class InventoryController {
         return ResponseEntity.status(HttpStatus.CREATED).body(inventoryService.createInventory(inventoryRequest));
     }
 
-    @PatchMapping("/{productId}")
+    @PatchMapping
     public ResponseEntity<InventoryResponse> updateInventory(@RequestBody InventoryRequest inventoryRequest){
         log.info("update inventory request for product , {} : ", inventoryRequest);
         return ResponseEntity.ok(inventoryService.updateProduct(inventoryRequest));

@@ -4,19 +4,20 @@ import com.priyanshu.orderAndInventoryManagement.OrderAndInventoryManagement.dto
 import com.priyanshu.orderAndInventoryManagement.OrderAndInventoryManagement.entity.Cart;
 import com.priyanshu.orderAndInventoryManagement.OrderAndInventoryManagement.entity.CartItem;
 import com.priyanshu.orderAndInventoryManagement.OrderAndInventoryManagement.entity.Product;
-import com.priyanshu.orderAndInventoryManagement.OrderAndInventoryManagement.entity.User;
 import com.priyanshu.orderAndInventoryManagement.OrderAndInventoryManagement.errors.exception.ResourceNotFoundException;
 import com.priyanshu.orderAndInventoryManagement.OrderAndInventoryManagement.mapper.CartMapper;
 import com.priyanshu.orderAndInventoryManagement.OrderAndInventoryManagement.repo.CartItemRepo;
 import com.priyanshu.orderAndInventoryManagement.OrderAndInventoryManagement.repo.CartRepo;
 import com.priyanshu.orderAndInventoryManagement.OrderAndInventoryManagement.repo.ProductRepo;
-import com.priyanshu.orderAndInventoryManagement.OrderAndInventoryManagement.repo.UserRepo;
-import jakarta.validation.constraints.NotNull;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
@@ -60,12 +61,49 @@ public class CartItemService {
         cartItemRepo.delete(cartItem);
     }
 
+    @Transactional
     public void saveCart(Long guestCartId, Long userCartId) {
-        List<CartItem> guestCartList = cartItemRepo.findAllByCartId(guestCartId);
-        List<CartItem> userCartList = cartItemRepo.findAllByCartId(userCartId);
 
-        userCartList.addAll(guestCartList);
-        cartItemRepo.saveAll(userCartList);
-        cartItemRepo.deleteAll(guestCartList);
+        List<CartItem> guestItems =
+                cartItemRepo.findAllByCartId(guestCartId);
+
+        List<CartItem> userItems =
+                cartItemRepo.findAllByCartId(userCartId);
+
+        Map<Long, Integer> userItemsMap = new HashMap<>();
+
+        for (int i=0;i<userItems.size();i++) {
+            Long productId = userItems.get(i).getProduct().getId();
+            userItemsMap.put(productId, i);
+        }
+
+        List<CartItem> itemsToDelete = new ArrayList<>();
+
+        guestItems.forEach(item -> {
+            Long productId = item.getProduct().getId();
+
+            if (userItemsMap.containsKey(productId)) {
+
+                Integer indexOfUserItem = userItemsMap.get(productId);
+                CartItem userItem = userItems.get(indexOfUserItem);
+                userItem.setQuantity(
+                        userItem.getQuantity() + item.getQuantity()
+                );
+
+                // Guest item is no longer needed
+                itemsToDelete.add(item);
+
+            } else {
+
+                // Move guest item to user's cart
+                Cart userCart = cartRepo.getReferenceById(userCartId);
+                item.setCart(userCart);
+
+                userItems.add(item);
+            }
+        });
+
+        cartItemRepo.saveAll(userItems);
+        cartItemRepo.deleteAll(itemsToDelete);
     }
 }

@@ -3,6 +3,6 @@ package com.priyanshu.orderAndInventoryManagement.OrderAndInventoryManagement.dt
 public record ProductUpdateRequest(
         String name,
         String description,
-        double price
+        BigDecimal price
 ) {
 }

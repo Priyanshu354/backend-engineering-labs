@@ -2,7 +2,7 @@ package com.priyanshu.orderAndInventoryManagement.OrderAndInventoryManagement.dt
 
 // for future multiple cart
 public record OrderCreateRequest(
-        Long cartId
+        String shippingAddress
 ) {
 
 }

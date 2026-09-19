@@ -5,6 +5,7 @@ import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 
@@ -46,11 +47,17 @@ public class JwtUtil {
     }
 
     public static Long getUserId(){
-        Claims claims = (Claims) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
-        String userId = claims.getSubject();
+        if(authentication.getPrincipal() instanceof Claims){
+            Claims claims = (Claims) authentication.getPrincipal();
+            String userId = claims.getSubject();
 
-        return Long.parseLong(userId);
+            return Long.parseLong(userId);
+        }
+
+        return null;
+
     }
 
 }

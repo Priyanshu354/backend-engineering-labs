@@ -45,7 +45,7 @@ public class InventoryService {
     @PreAuthorize("hasAuthority('INVENTORY_CREATE')")
     public InventoryResponse createInventory(InventoryRequest inventoryRequest) {
         inventoryRepo.findByProductId(inventoryRequest.productId()).ifPresent((inventory) -> {
-                new BadRequestException("inventory is already present");
+                throw new BadRequestException("inventory is already present");
             }
         );
 
@@ -87,7 +87,7 @@ public class InventoryService {
                 new ResourceNotFoundException("Inventory", productId));
 
         if(inventory.getQuantity() < quantity) {
-            new BadRequestException("Insufficient stock");
+            throw new BadRequestException("Insufficient stock");
         }
 
         inventory.setQuantity(inventory.getQuantity() - quantity);

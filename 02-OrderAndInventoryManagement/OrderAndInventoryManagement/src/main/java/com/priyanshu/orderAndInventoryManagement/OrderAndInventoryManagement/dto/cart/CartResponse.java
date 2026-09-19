@@ -1,8 +1,11 @@
 package com.priyanshu.orderAndInventoryManagement.OrderAndInventoryManagement.dto.cart;
 
+import java.math.BigDecimal;
+
 public record CartResponse(
-        String name,
-        Double price,
+        Long productId,
+        String productName,
+        BigDecimal productPrice,
         Integer quantity
 ) {
 }

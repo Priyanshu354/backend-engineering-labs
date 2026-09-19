@@ -32,21 +32,10 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(ResourceNotFoundException.class)
     public ResponseEntity<ApiError> handleResourceNotFound(ResourceNotFoundException ex){
-        ApiError apiError=new ApiError(HttpStatus.NOT_FOUND, ex.getResourceName() + "with id this : " + ex.getResourceId() + "Not Found");
+        ApiError apiError=new ApiError(HttpStatus.NOT_FOUND, ex.getResourceName() + "with id : " + ex.getResourceId() + "Not Found");
         log.error(apiError.toString(), apiError);
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(apiError);
     }
-
-//    @ExceptionHandler(MethodArgumentNotValidException.class)
-//    public ResponseEntity<ApiError> handleInputValidationError(MethodArgumentNotValidException ex) {
-//        List<ApiFieldError> errors = ex.getBindingResult().getFieldErrors().stream()
-//                .map(error -> new ApiFieldError(error.getField(), error.getDefaultMessage()))
-//                .toList();
-//
-//        ApiError error = new ApiError(HttpStatus.BAD_REQUEST, "Input Validation Error" , errors);
-//        log.error(error.toString(), ex);
-//        return ResponseEntity.status(error.status()).body(error);
-//    }
 
     @ExceptionHandler(ExpiredJwtException.class)
     public ResponseEntity<ApiError> handleExpiredJwt(ExpiredJwtException ex) {
@@ -90,6 +79,17 @@ public class GlobalExceptionHandler {
         return ResponseEntity
                 .status(HttpStatus.CONFLICT)
                 .body("Product was modified by another request. Please retry.");
+    }
+
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity<ApiError> handleInputValidationError(MethodArgumentNotValidException ex) {
+        List<ApiFieldError> errors = ex.getBindingResult().getFieldErrors().stream()
+                .map(error -> new ApiFieldError(error.getField(), error.getDefaultMessage()))
+                .toList();
+
+        ApiError error = new ApiError(HttpStatus.BAD_REQUEST, "Input validation failed", errors);
+        log.error(error.toString(), ex);
+        return ResponseEntity.status(error.status()).body(error);
     }
 
 
