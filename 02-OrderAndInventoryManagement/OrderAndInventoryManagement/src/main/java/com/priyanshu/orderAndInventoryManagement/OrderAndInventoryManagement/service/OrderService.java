@@ -9,6 +9,7 @@ import com.priyanshu.orderAndInventoryManagement.OrderAndInventoryManagement.ent
 import com.priyanshu.orderAndInventoryManagement.OrderAndInventoryManagement.enums.OrderStatus;
 import com.priyanshu.orderAndInventoryManagement.OrderAndInventoryManagement.errors.exception.BadRequestException;
 import com.priyanshu.orderAndInventoryManagement.OrderAndInventoryManagement.errors.exception.ResourceNotFoundException;
+import com.priyanshu.orderAndInventoryManagement.OrderAndInventoryManagement.mapper.InventoryMapper;
 import com.priyanshu.orderAndInventoryManagement.OrderAndInventoryManagement.mapper.OrderMapper;
 import com.priyanshu.orderAndInventoryManagement.OrderAndInventoryManagement.repo.CartItemRepo;
 import com.priyanshu.orderAndInventoryManagement.OrderAndInventoryManagement.repo.CartRepo;
@@ -33,8 +34,10 @@ public class OrderService {
     private final OrderRepo orderRepo;
     private final OrderMapper orderMapper;
     private final UserRepo userRepo;
-    private final CartService cartService;
+    private final CartItemService cartItemService;
+    private final CartRepo cartRepo;
     private final OrderItemService orderItemService;
+    private final InventoryService inventoryService;
 
     public List<OrderResponse> getOrdersByUserId(Long userId) {
         List<Order> orders = orderRepo.findAllByUserId(userId);
@@ -60,7 +63,8 @@ public class OrderService {
 
     @Transactional
     public OrderResponse createOrder(Long userId, OrderCreateRequest orderCreateRequest) {
-        List<CartResponse> cartItems = cartService.getCart(userId);
+        Cart cart = cartRepo.findByUserId(userId);
+        List<CartResponse> cartItems = cartItemService.getCartItems(cart.getId());
 
         if(cartItems.isEmpty()){
             throw new BadRequestException("cart is empty");
@@ -73,6 +77,9 @@ public class OrderService {
                         .multiply(BigDecimal.valueOf(item.getQuantity())))
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
 
+        orderItems.forEach((orderItem ->
+                inventoryService.decreaseStock(orderItem.getProductId(), orderItem.getQuantity())));
+
         Order order = new Order();
         order.setUser(userRepo.getReferenceById(userId));
         order.setTotalAmount(totalAmount);
@@ -80,38 +87,67 @@ public class OrderService {
         order.setStatus(OrderStatus.PLACED);
 
         orderRepo.save(order);
-
         orderItems.forEach((item) -> item.setOrder(order));
-
         orderItemService.saveAllOrderItems(orderItems);
+
+        cartItemService.deleteAllCartItems(cart.getId());
 
         return new OrderResponse(order.getId(), order.getCreated_at(),  order.getTotalAmount(), order.getStatus());
     }
 
+    @PreAuthorize("@security.canCancelOrder(#orderId)")
+    @Transactional
     public OrderUpdateResponse cancelOrder(Long orderId) {
-        Order order = orderRepo.findById(orderId).orElseThrow(() -> new ResourceNotFoundException("Order", orderId));
 
-        if(order.getStatus() == OrderStatus.PLACED || order.getStatus() == OrderStatus.CONFIRMED) {
-            order.setStatus(OrderStatus.CANCELLED);
-        }
-        else{
-            throw new BadRequestException("Order can't be canceled");
-        }
-        return new OrderUpdateResponse(order.getId(), order.getStatus());
+        Order order = orderRepo.findById(orderId)
+                .orElseThrow(() ->
+                        new ResourceNotFoundException("Order", orderId));
 
+        if (!order.getStatus().isCancellable()) {
+            throw new BadRequestException(
+                    "Order cannot be cancelled from status "
+                            + order.getStatus()
+            );
+        }
+
+        order.setStatus(OrderStatus.CANCELLED);
+
+        return new OrderUpdateResponse(
+                order.getId(),
+                order.getStatus()
+        );
     }
 
+    @Transactional
     @PreAuthorize("hasAuthority('ORDER_UPDATE')")
-    public OrderUpdateResponse updateOrderStatus(OrderUpdateRequest orderUpdateRequest) {
-        Order order = orderRepo.findById(orderUpdateRequest.orderId()).orElseThrow(() -> new ResourceNotFoundException("Order", orderUpdateRequest.orderId()));
+    public OrderUpdateResponse updateOrderStatus(
+            OrderUpdateRequest request) {
 
-        if(order.getStatus() == OrderStatus.PLACED || order.getStatus() == OrderStatus.CONFIRMED) {
-            order.setStatus(orderUpdateRequest.orderStatus());
+        Order order = orderRepo.findById(request.orderId())
+                .orElseThrow(() ->
+                        new ResourceNotFoundException(
+                                "Order",
+                                request.orderId()
+                        ));
+
+        OrderStatus currentStatus = order.getStatus();
+        OrderStatus newStatus = request.orderStatus();
+
+        if (!currentStatus.canTransitionTo(newStatus)) {
+            throw new BadRequestException(
+                    "Cannot change order status from "
+                            + currentStatus
+                            + " to "
+                            + newStatus
+            );
         }
-        else{
-            throw new BadRequestException("Order can't be canceled");
-        }
-        return new OrderUpdateResponse(order.getId(), order.getStatus());
+
+        order.setStatus(newStatus);
+
+        return new OrderUpdateResponse(
+                order.getId(),
+                order.getStatus()
+        );
     }
 
     @PreAuthorize("hasAuthority('ORDER_DELETE')")

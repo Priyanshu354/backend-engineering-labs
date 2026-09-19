@@ -1,12 +1,12 @@
 package com.priyanshu.orderAndInventoryManagement.OrderAndInventoryManagement.dto.inventory;
 
-import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 
 public record InventoryRequest(
-        @NotBlank
+        @NotNull
         Long productId,
 
-        @NotBlank
+        @NotNull
         Integer quantity
 ) {
 }

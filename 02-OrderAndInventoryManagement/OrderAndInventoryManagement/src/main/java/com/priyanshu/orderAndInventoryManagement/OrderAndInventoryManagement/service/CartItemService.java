@@ -106,4 +106,8 @@ public class CartItemService {
         cartItemRepo.saveAll(userItems);
         cartItemRepo.deleteAll(itemsToDelete);
     }
+
+    public void deleteAllCartItems(Long cartId) {
+        cartItemRepo.deleteAllByCartId(cartId);
+    }
 }

@@ -62,6 +62,7 @@ public class InventoryService {
         return inventoryMapper.inventoryToInventoryResponse(inventory);
     }
 
+    @Transactional
     @PreAuthorize("hasAuthority('INVENTORY_UPDATE')")
     public InventoryResponse updateProduct(InventoryRequest inventoryRequest) {
         Inventory inventory = inventoryRepo.findByProductId(inventoryRequest.productId()).orElseThrow(() ->

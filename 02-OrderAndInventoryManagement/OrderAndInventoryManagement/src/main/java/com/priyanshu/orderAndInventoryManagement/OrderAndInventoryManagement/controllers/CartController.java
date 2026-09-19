@@ -37,7 +37,7 @@ public class CartController {
 
     @PatchMapping
     public ResponseEntity<CartMessage> manageCart(@RequestParam(required = false) Long guestId,
-                                                     @RequestBody CartMangeRequest cartMangeRequest){
+                                                   @Valid  @RequestBody CartMangeRequest cartMangeRequest){
         Long userId = JwtUtil.getUserId();
         Long id = userId != null ? userId : guestId;
 
